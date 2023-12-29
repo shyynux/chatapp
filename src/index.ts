@@ -1,6 +1,7 @@
+import { OutgoingMessage, SupportedMessage as OutgoingSupportedMessages } from "./messages/outgoingMessages";
 import { server as WebSocketServer, connection } from "websocket";
 import http from "http";
-import { IncomingMessage, SupportedMessage } from "./store/messages/incomingMessages";
+import { IncomingMessage, SupportedMessage } from "./messages/incomingMessages";
 import { UserManager } from "./UserManager";
 import { InMemoryStore } from "./store/InMemoryStore";
 
@@ -51,9 +52,6 @@ wsServer.on('request', function(request: any) {
             }
         }
     });
-    connection.on('close', function(reasonCode, description) {
-        console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
-    });
 });
 
 /** if type JOIN_ROOM, message is initMessage **/
@@ -66,10 +64,48 @@ function messageHandler(ws: connection, message: IncomingMessage){
     if(message.type == SupportedMessage.SendMessage){
         const payload = message.payload;
         const user = userManager.getUser(payload.roomId, payload.userId);
+
+        if(!user){
+            console.error(" user does not exists ");
+            return;
+        }
+
+        let chat = store.addChat(payload.userId, user.name, payload.roomId, payload.message);
+
+        if(!chat){
+            return;
+        }
+
+        const outgoingPayload: OutgoingMessage = {
+            type: OutgoingSupportedMessages.AddChat,
+            payload: {
+                roomId: payload.roomId,
+                chatId: chat.id,
+                name: user.name,
+                message: payload.message,
+                upvotes: 0
+            }
+        }
     }
 
-    if(message.type == SupportedMessage.UpvoteMessage){
+    if(message.type === SupportedMessage.UpvoteMessage){
         const payload = message.payload;
+        const chat = store.upvote(payload.userId, payload.roomId, payload.chatId);
 
+        if(!chat){
+            return;
+        }
+
+        const outgoingPayload: OutgoingMessage = {
+            type: OutgoingSupportedMessages.UpdateChat,
+            payload: {
+                roomId: payload.roomId,
+                chatId: payload.chatId,
+                upvotes: chat.upvotes.length            }
+        }
+
+        userManager.broadcast(payload.roomId, payload.userId, outgoingPayload);
+    
+        /** store in memory that is's upvoted, then broadcast */
     }
 }

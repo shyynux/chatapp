@@ -1,13 +1,13 @@
 /* blue print for storage */
 
-type UserId = string;
+export type UserId = string;
 
 export interface Chat {
     id: string;
     userId: UserId;
     name: string;
     message: string;
-    upvotes: UserId[]; 
+    upvotes: UserId[]; // a list of userids who upvoted this chat
 }
 
 export abstract class Store{

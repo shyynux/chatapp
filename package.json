@@ -23,7 +23,8 @@
   "homepage": "https://github.com/shyynux/chatapp#readme",
   "dependencies": {
     "typescript": "^5.3.3",
-    "websocket": "^1.0.34"
+    "websocket": "^1.0.34",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@types/websocket": "^1.0.10"

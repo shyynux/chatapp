@@ -1,7 +1,5 @@
-import { Store, Chat } from "./store";
+import { Store, Chat, UserId } from "./store";
 let globalChatId = 0;
-
-type UserId = string;
 
 export interface Room {
     roomId: string;
@@ -33,31 +31,40 @@ export class InMemoryStore implements Store {
 
     /* adds new chat to the chat-room */
     addChat(userId: string, name: string, roomId: string, message: string){
-        const room = this.store.get(roomId);
-        if(!room){
-            return[];
+        if (!this.store.get(roomId)) {
+            this.initRoom(roomId);
         }
-        return room.chats.push({
+        const room = this.store.get(roomId);
+        if (!room) {
+            return;
+        }
+        const chat = {
             id: (globalChatId++).toString(),
-            userId: userId,
-            name: name,
-            message: message,
+            userId,
+            name,
+            message,
             upvotes: []
-        });
+        }
+        room.chats.push(chat)
+        return chat;
     }
 
     /* adds an upvote to a specific chat message */
-    upvote(userId: string, roomId: string, chatId: string){
+    upvote(userId: UserId, roomId: string, chatId: string){
         const room = this.store.get(roomId);
         if(!room){
-            return[];
+            return null;
         }
 
         /* TODO: make it faster */
-        const chat = room.chats.find(({id}) => id === chatId);
-       
-        if(chat){
+        const chat = room.chats.find(({id}) => id == chatId);
+
+        if (chat) {
+            if (chat.upvotes.find(x => x === userId)) {
+                return chat;
+            }
             chat.upvotes.push(userId);
         }
+        return chat;
     }
 }

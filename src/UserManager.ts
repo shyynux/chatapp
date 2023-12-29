@@ -1,4 +1,5 @@
 import { connection } from "websocket";
+import { OutgoingMessage } from "./messages/outgoingMessages";
 
 interface User{
     name: string;
@@ -13,6 +14,7 @@ interface Room{
 export class UserManager {
     private users: Map<string, Room>;
     constructor(){
+        /** the string is roomId here */
         this.users = new Map<string, Room>()
     }
 
@@ -41,7 +43,27 @@ export class UserManager {
         return user ?? null;
     }
 
-    broadcast(){
-        
+    broadcast(roomId: string, userId: string, message: OutgoingMessage){
+        const user = this.getUser(roomId, userId);
+
+        if(!user){
+            console.error("oops, user does not exists!!");
+            return;
+        }
+
+        const room = this.users.get(roomId);
+
+        if(!room){
+            console.error("room does not exist!");
+            return;
+        }
+
+        room.users.forEach((user) => {
+            if(user.id === userId){
+                return;
+            }
+            console.log("outgoing message" + JSON.stringify(message))
+            user.conn.sendUTF(JSON.stringify(message));
+        })
     }
 }
