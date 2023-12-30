@@ -7,6 +7,7 @@ import { InMemoryStore } from "./store/InMemoryStore";
 
 const server = http.createServer(function(request: any, response: any) {
     console.log((new Date()) + ' Received request for ' + request.url);
+    console.log("hi handosme");
     response.writeHead(404);
     response.end();
 });
@@ -15,17 +16,13 @@ const userManager = new UserManager();
 const store = new InMemoryStore();
 
 server.listen(8080, function() {
+    console.log("hi girlllllllly");
     console.log((new Date()) + ' Server is listening on port 8080');
 });
 
 const wsServer = new WebSocketServer({
     httpServer: server,
-    // You should not use autoAcceptConnections for production
-    // applications, as it defeats all standard cross-origin protection
-    // facilities built into the protocol and the browser.  You should
-    // *always* verify the connection's origin and decide whether or not
-    // to accept it.
-    autoAcceptConnections: false
+    autoAcceptConnections: true
 });
 
 function originIsAllowed(origin: string) {
@@ -34,6 +31,7 @@ function originIsAllowed(origin: string) {
 }
 
 wsServer.on('request', function(request: any) {
+    console.log("hi bitch");
     if (!originIsAllowed(request.origin)) {
       // Make sure we only accept requests from an allowed origin
       request.reject();

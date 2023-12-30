@@ -12,3 +12,5 @@ tmp/
 logs/
 build/
 dist/
+chatapp/frontend/dist/
+frontend/dist/
