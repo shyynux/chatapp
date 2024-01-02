@@ -211,6 +211,11 @@
   </div>
 </div>
 </div>
-        <script src="" async defer></script>
+        <script>
+            const ws = new WebSocket("http://localhost:8080/");
+            ws.onopen = function() {
+                alert("connected");
+            }
+        </script>
     </body>
 </html>
